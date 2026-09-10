@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"name": "catalogue-api",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/dist": true
+		}
+	}
+}

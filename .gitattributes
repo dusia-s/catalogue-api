@@ -1,0 +1,16 @@
+# Normalise to LF in the repository and in working copies. Files that end up
+# inside the Linux containers (shell scripts, nginx/php config, SQL) break with
+# CRLF, and this repo is developed on Windows.
+* text=auto eol=lf
+
+*.sh   text eol=lf
+*.conf text eol=lf
+*.ini  text eol=lf
+*.sql  text eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Keep generated/vendored noise out of diffs and language stats.
+composer.lock -diff
+/docs/** linguist-documentation

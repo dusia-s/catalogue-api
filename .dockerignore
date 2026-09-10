@@ -1,0 +1,9 @@
+.git/
+.idea/
+.vscode/
+var/
+vendor/
+.env.local
+.env.*.local
+docs/
+*.code-workspace
