@@ -13,3 +13,8 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Editor and IDE files are personal to a checkout, not part of the project.
+*.code-workspace
+/.idea/
+/.vscode/
