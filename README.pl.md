@@ -95,24 +95,33 @@ Kategorie wskazuje się przez ich IRI w treści żądania produktu, więc osobny
 przypisywania nie jest potrzebny:
 
 ```bash
-# Utwórz dwie kategorie
+# Utwórz dwie kategorie. Kody muszą być unikalne, więc poniższe celowo nie
+# występują w danych przykładowych. Każda odpowiedź zawiera "@id", do którego
+# potem się odwołujemy.
 curl -X POST http://localhost:8080/api/categories \
   -H 'Content-Type: application/ld+json' \
-  -d '{"code":"ELEC"}'
+  -d '{"code":"SADDLES"}'
+# → {"@id":"/api/categories/9","code":"SADDLES",...}
 
 curl -X POST http://localhost:8080/api/categories \
   -H 'Content-Type: application/ld+json' \
-  -d '{"code":"GARDEN"}'
+  -d '{"code":"TOURING"}'
+# → {"@id":"/api/categories/10","code":"TOURING",...}
 
-# Utwórz produkt należący do obu
+# Utwórz produkt należący do obu, używając dwóch powyższych wartości "@id"
 curl -X POST http://localhost:8080/api/products \
   -H 'Content-Type: application/ld+json' \
   -d '{
-        "name": "Desk Lamp",
-        "price": "89.50",
-        "categories": ["/api/categories/1", "/api/categories/2"]
+        "name": "Leather Touring Saddle",
+        "price": "459.00",
+        "categories": ["/api/categories/9", "/api/categories/10"]
       }'
 ```
+
+> Powyższe identyfikatory są poglądowe. Ładowanie fixtures usuwa wiersze przez
+> `DELETE`, co nie resetuje `AUTO_INCREMENT` w MySQL, więc po ponownym załadowaniu
+> identyfikatory będą inne — należy używać wartości `@id` zwróconych przez własne
+> odpowiedzi.
 
 Zmiana kategorii produktu to `PATCH` z samą nową listą:
 

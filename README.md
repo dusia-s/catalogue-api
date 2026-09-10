@@ -94,24 +94,31 @@ Categories are referenced by their IRI in the product payload, so no separate
 association endpoint is needed:
 
 ```bash
-# Create two categories
+# Create two categories. Codes must be unique, so these are ones the seed
+# fixtures do not use. Each response carries the "@id" you then reference.
 curl -X POST http://localhost:8080/api/categories \
   -H 'Content-Type: application/ld+json' \
-  -d '{"code":"ELEC"}'
+  -d '{"code":"SADDLES"}'
+# → {"@id":"/api/categories/9","code":"SADDLES",...}
 
 curl -X POST http://localhost:8080/api/categories \
   -H 'Content-Type: application/ld+json' \
-  -d '{"code":"GARDEN"}'
+  -d '{"code":"TOURING"}'
+# → {"@id":"/api/categories/10","code":"TOURING",...}
 
-# Create a product belonging to both
+# Create a product belonging to both, using the two "@id" values above
 curl -X POST http://localhost:8080/api/products \
   -H 'Content-Type: application/ld+json' \
   -d '{
-        "name": "Desk Lamp",
-        "price": "89.50",
-        "categories": ["/api/categories/1", "/api/categories/2"]
+        "name": "Leather Touring Saddle",
+        "price": "459.00",
+        "categories": ["/api/categories/9", "/api/categories/10"]
       }'
 ```
+
+> The ids above are illustrative. Loading the fixtures purges rows with `DELETE`,
+> which leaves MySQL's `AUTO_INCREMENT` where it was, so your own ids will differ
+> after a reload — always use the `@id` values your responses actually return.
 
 Re-categorising a product is a `PATCH` with just the new list:
 
