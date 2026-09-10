@@ -1,6 +1,16 @@
 api_platform:
-    title: Hello API Platform
+    title: Catalogue API
     version: 1.0.0
+    description: |
+        Manage a catalogue of products and the categories they belong to.
+
+        Categories are linked by passing their IRIs in the product payload, so there is
+        no separate association endpoint. Saving a product raises a notification that is
+        written to the operation log and e-mailed; `/api/operation_logs` is read-only and
+        exists so that trail can be inspected here rather than in the database.
+
+        Note that PATCH requires `Content-Type: application/merge-patch+json`. PUT is
+        available too and takes a full representation.
     defaults:
         stateless: true
         cache_headers:
