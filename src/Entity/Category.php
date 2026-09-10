@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -49,6 +50,10 @@ class Category implements TimestampableInterface
     #[Assert\NotBlank(message: 'A category code is required.')]
     #[Assert\Length(max: 10, maxMessage: 'A category code cannot exceed {{ limit }} characters.')]
     #[Groups(['category:read', 'category:write', 'product:read'])]
+    #[ApiProperty(
+        description: 'Unique identifier for the category, at most 10 characters.',
+        example: 'WHEELS',
+    )]
     private ?string $code = null;
 
     /**

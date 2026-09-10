@@ -60,6 +60,30 @@ final class DocumentationTest extends ApiTestCase
     }
 
     /**
+     * Relations default to a bare "https://example.com/" placeholder in the generated
+     * schema, which tells a reader nothing about what belongs in `categories` — the
+     * IRI, not the id and not the code. The documented example has to be usable.
+     */
+    public function testTheProductSchemaShowsAUsableCategoryExample(): void
+    {
+        $properties = static::createClient()
+            ->request('GET', '/api/docs.jsonopenapi', ['headers' => self::OPENAPI])
+            ->toArray()['components']['schemas']['Product-product.write']['properties'];
+
+        $categories = $properties['categories']['example'];
+
+        self::assertIsArray($categories);
+        self::assertNotEmpty($categories);
+
+        foreach ($categories as $iri) {
+            self::assertStringStartsWith('/api/categories/', $iri);
+        }
+
+        self::assertNotEmpty($properties['price']['example']);
+        self::assertNotEmpty($properties['name']['example']);
+    }
+
+    /**
      * Products carry every write verb; the log is read-only and categories stop at
      * create, so the published contract should say exactly that.
      */

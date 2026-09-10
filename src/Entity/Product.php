@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -66,6 +67,7 @@ class Product implements TimestampableInterface
     #[Assert\NotBlank(message: 'A product name is required.')]
     #[Assert\Length(max: 255)]
     #[Groups(['product:read', 'product:write'])]
+    #[ApiProperty(example: 'Carbon Wheelset 45 mm')]
     private ?string $name = null;
 
     /**
@@ -77,6 +79,10 @@ class Product implements TimestampableInterface
     #[Assert\NotNull(message: 'A product price is required.')]
     #[Assert\PositiveOrZero(message: 'A product price cannot be negative.')]
     #[Groups(['product:read', 'product:write'])]
+    #[ApiProperty(
+        description: 'Decimal amount as a string, so no precision is lost in transit.',
+        example: '4890.00',
+    )]
     private ?string $price = null;
 
     /**
@@ -88,6 +94,11 @@ class Product implements TimestampableInterface
     #[ORM\JoinTable(name: 'product_category')]
     #[Assert\Count(min: 1, minMessage: 'A product must belong to at least one category.')]
     #[Groups(['product:read', 'product:write'])]
+    #[ApiProperty(
+        description: 'Category IRIs, e.g. "/api/categories/1" - not the id or the code. '
+            .'At least one is required; list them with GET /api/categories.',
+        example: ['/api/categories/1', '/api/categories/2'],
+    )]
     private Collection $categories;
 
     public function __construct()
