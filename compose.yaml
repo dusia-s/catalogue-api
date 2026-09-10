@@ -49,5 +49,9 @@ services:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
+# Note: the doctrine/doctrine-bundle Flex recipe appends a PostgreSQL `database`
+# service here. It was removed — the brief specifies MySQL, which is configured
+# above.
+
 volumes:
   db_data:
