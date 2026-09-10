@@ -31,10 +31,20 @@ use Symfony\Component\Validator\Constraints as Assert;
         // The write operations run through ProductPersistProcessor, which persists
         // and then announces the save. Delete does not: the brief notifies on save.
         new Post(processor: ProductPersistProcessor::class),
-        // PUT replaces the whole resource, PATCH merges. PATCH requires
+        // PUT takes the whole representation, PATCH merges. PATCH requires
         // `Content-Type: application/merge-patch+json`; PUT is offered as well so a
         // plain `application/json` client is not stuck on a 415.
-        new Put(processor: ProductPersistProcessor::class),
+        //
+        // standard_put is off so PUT populates the loaded entity instead of building
+        // a replacement from the body. Under standard PUT the new instance has no
+        // createdAt — it is read-only, so nothing in the payload can set it, and
+        // #[ORM\PrePersist] does not run on an update — and the write fails on a NOT
+        // NULL created_at. Populating keeps the creation date immutable, which is
+        // what "date added" should mean anyway.
+        new Put(
+            processor: ProductPersistProcessor::class,
+            extraProperties: ['standard_put' => false],
+        ),
         new Patch(processor: ProductPersistProcessor::class),
         new Delete(),
     ],
