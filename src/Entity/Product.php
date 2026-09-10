@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Put;
 use App\Doctrine\Behavior\TimestampableInterface;
 use App\Doctrine\Behavior\TimestampableTrait;
 use App\Repository\ProductRepository;
+use App\State\ProductPersistProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -27,12 +28,14 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(),
         new Get(),
-        new Post(),
+        // The write operations run through ProductPersistProcessor, which persists
+        // and then announces the save. Delete does not: the brief notifies on save.
+        new Post(processor: ProductPersistProcessor::class),
         // PUT replaces the whole resource, PATCH merges. PATCH requires
         // `Content-Type: application/merge-patch+json`; PUT is offered as well so a
         // plain `application/json` client is not stuck on a 415.
-        new Put(),
-        new Patch(),
+        new Put(processor: ProductPersistProcessor::class),
+        new Patch(processor: ProductPersistProcessor::class),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['product:read']],

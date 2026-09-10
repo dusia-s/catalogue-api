@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Notification;
 
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\AutowireIterable;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**
  * Fans a notification out to every channel that supports it.
@@ -17,7 +17,7 @@ final class NotificationDispatcher
      *                                                         app.notification_channel
      */
     public function __construct(
-        #[AutowireIterable('app.notification_channel')]
+        #[AutowireIterator('app.notification_channel')]
         private readonly iterable $channels,
         private readonly LoggerInterface $logger,
     ) {

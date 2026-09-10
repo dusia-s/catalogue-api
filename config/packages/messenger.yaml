@@ -10,8 +10,14 @@ framework:
             sync: 'sync://'
 
         routing:
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            # Notifications are delivered in-process for now, so a saved product is
+            # logged and mailed before the response returns and no worker is needed
+            # to run the stack.
+            #
+            # Moving delivery off the request is a one-line change: uncomment the
+            # `async` transport above and point this at it instead. That is why the
+            # message carries a flat, serialisable snapshot rather than the entity.
+            'App\Message\ProductSavedNotification': sync
 
 # when@test:
 #    framework:
