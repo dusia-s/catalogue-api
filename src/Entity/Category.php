@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Doctrine\Behavior\TimestampableInterface;
 use App\Doctrine\Behavior\TimestampableTrait;
 use App\Repository\CategoryRepository;
@@ -17,6 +21,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['code'], message: 'A category with code "{{ value }}" already exists.')]
+#[ApiResource(
+    // The brief scopes create/update/delete to products; categories only need to
+    // exist so products can reference them. Delete is deliberately absent: a product
+    // must keep at least one category, and that invariant lives in validation, which
+    // a cascading category delete would bypass and leave orphaned products behind.
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(),
+    ],
+    normalizationContext: ['groups' => ['category:read']],
+    denormalizationContext: ['groups' => ['category:write']],
+    order: ['code' => 'ASC'],
+)]
 class Category implements TimestampableInterface
 {
     use TimestampableTrait;

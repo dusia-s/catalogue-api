@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Doctrine\Behavior\TimestampableInterface;
 use App\Doctrine\Behavior\TimestampableTrait;
 use App\Repository\ProductRepository;
@@ -16,6 +23,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(),
+        // PUT replaces the whole resource, PATCH merges. PATCH requires
+        // `Content-Type: application/merge-patch+json`; PUT is offered as well so a
+        // plain `application/json` client is not stuck on a 415.
+        new Put(),
+        new Patch(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['product:read']],
+    denormalizationContext: ['groups' => ['product:write']],
+    order: ['createdAt' => 'DESC'],
+)]
 class Product implements TimestampableInterface
 {
     use TimestampableTrait;

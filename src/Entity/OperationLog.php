@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OperationLogRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,6 +21,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
  */
 #[ORM\Entity(repositoryClass: OperationLogRepository::class)]
 #[ORM\Table(name: 'operation_log')]
+#[ApiResource(
+    // Read-only: the log is written by the notification pipeline, never by clients.
+    // Exposing it lets the notification requirement be verified from /api/docs
+    // without opening a MySQL shell.
+    operations: [
+        new GetCollection(),
+        new Get(),
+    ],
+    normalizationContext: ['groups' => ['operation_log:read']],
+    order: ['createdAt' => 'DESC'],
+)]
 class OperationLog
 {
     #[ORM\Id]
