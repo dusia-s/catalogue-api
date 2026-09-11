@@ -259,6 +259,37 @@ then run `bin/console messenger:consume async`. `ProductSavedNotification` delib
 carries a flat snapshot of the product rather than the entity, precisely so it survives
 serialisation when that day comes.
 
+## Security notes
+
+**There is no authentication.** The brief does not ask for any, and every endpoint is
+open. That is a scope decision rather than an oversight: adding auth would mean
+inventing a user model and handing a reviewer credentials to run the thing.
+`SecurityBundle` is not installed, and installing it is the first step if this ever
+leaves a trusted network.
+
+What is handled:
+
+- **Mass assignment** — serialization groups keep `id`, `createdAt` and `updatedAt`
+  out of the write context, so a payload setting them is ignored rather than honoured.
+- **Page size** — clients cannot pass `itemsPerPage`; the server decides, so a
+  collection cannot be coaxed into returning the whole table in one request.
+- **SQL injection** — every query goes through Doctrine with bound parameters.
+- **Input format** — validation pins the shape of each field rather than leaving it to
+  the column, so malformed input is a 422 and never an exception from the driver.
+- **Headers** — `X-Content-Type-Options: nosniff` and `X-Frame-Options: deny` on every
+  response.
+
+### Running outside development
+
+The stack ships with `APP_ENV=dev`, which is what you want while reviewing it. Two
+things change for a real deployment:
+
+- **Error detail.** Under `dev` an error response carries a `trace` with absolute file
+  paths; under `prod` it does not. Set `APP_ENV=prod`.
+- **Secrets.** `APP_SECRET` in `.env` is a development placeholder and the MySQL
+  credentials (`app:app`, and the container's `root`) belong to the local stack only.
+  Override both through `.env.local` or real environment variables.
+
 ## Configuration
 
 Defaults live in committed `.env` files; put machine-specific overrides in `.env.local`

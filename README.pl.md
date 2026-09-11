@@ -266,6 +266,37 @@ a następnie `bin/console messenger:consume async`. `ProductSavedNotification` c
 przenosi płaski zestaw danych produktu zamiast encji — właśnie po to, żeby przetrwał
 serializację, gdy ten dzień nadejdzie.
 
+## Bezpieczeństwo
+
+**Nie ma uwierzytelniania.** Zadanie go nie wymaga, więc wszystkie endpointy są otwarte.
+To świadoma decyzja o zakresie, a nie przeoczenie: dodanie autoryzacji oznaczałoby
+wymyślenie modelu użytkownika i przekazywanie recenzentowi danych logowania.
+`SecurityBundle` nie jest zainstalowany — to pierwszy krok, jeśli projekt miałby kiedyś
+opuścić zaufaną sieć.
+
+Co jest zabezpieczone:
+
+- **Mass assignment** — grupy serializacji trzymają `id`, `createdAt` i `updatedAt` poza
+  kontekstem zapisu, więc żądanie ustawiające te pola jest ignorowane.
+- **Rozmiar strony** — klient nie może przekazać `itemsPerPage`; decyduje serwer, więc
+  nie da się jednym żądaniem pobrać całej tabeli.
+- **SQL injection** — wszystkie zapytania idą przez Doctrine z parametrami wiązanymi.
+- **Format danych** — walidacja określa kształt każdego pola zamiast zostawiać to
+  kolumnie, więc błędne dane kończą się kodem 422, a nie wyjątkiem ze sterownika.
+- **Nagłówki** — `X-Content-Type-Options: nosniff` i `X-Frame-Options: deny` w każdej
+  odpowiedzi.
+
+### Uruchomienie poza środowiskiem deweloperskim
+
+Projekt startuje z `APP_ENV=dev`, co jest wygodne przy przeglądaniu. Dwie rzeczy zmieniają
+się przy prawdziwym wdrożeniu:
+
+- **Szczegóły błędów.** W `dev` odpowiedź błędu zawiera `trace` z bezwzględnymi ścieżkami
+  plików; w `prod` już nie. Należy ustawić `APP_ENV=prod`.
+- **Sekrety.** `APP_SECRET` w `.env` to wartość deweloperska, a dane dostępowe do MySQL
+  (`app:app` oraz `root` kontenera) dotyczą wyłącznie lokalnego stacka. Jedno i drugie
+  trzeba nadpisać przez `.env.local` lub zmienne środowiskowe.
+
 ## Konfiguracja
 
 Wartości domyślne znajdują się w wersjonowanych plikach `.env`; nadpisania specyficzne
