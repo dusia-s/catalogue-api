@@ -293,9 +293,12 @@ się przy prawdziwym wdrożeniu:
 
 - **Szczegóły błędów.** W `dev` odpowiedź błędu zawiera `trace` z bezwzględnymi ścieżkami
   plików; w `prod` już nie. Należy ustawić `APP_ENV=prod`.
-- **Sekrety.** `APP_SECRET` w `.env` to wartość deweloperska, a dane dostępowe do MySQL
-  (`app:app` oraz `root` kontenera) dotyczą wyłącznie lokalnego stacka. Jedno i drugie
-  trzeba nadpisać przez `.env.local` lub zmienne środowiskowe.
+- **Sekrety.** Symfony czyta najpierw `.env`, a potem `.env.<env>`, więc dev i test biorą
+  `APP_SECRET` z `.env.dev` i `.env.test`. Wartość w `.env` jest zapasową dla wszystkich
+  *pozostałych* środowisk — łącznie z produkcją — i była pusta. Teraz zawiera jawną
+  wartość domyślną; prawdziwy sekret należy podać przez `.env.local` lub zmienną
+  środowiskową. Dane dostępowe do MySQL (`app:app` oraz `root` kontenera) również
+  dotyczą wyłącznie lokalnego stacka.
 
 ## Konfiguracja
 

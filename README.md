@@ -286,9 +286,12 @@ things change for a real deployment:
 
 - **Error detail.** Under `dev` an error response carries a `trace` with absolute file
   paths; under `prod` it does not. Set `APP_ENV=prod`.
-- **Secrets.** `APP_SECRET` in `.env` is a development placeholder and the MySQL
-  credentials (`app:app`, and the container's `root`) belong to the local stack only.
-  Override both through `.env.local` or real environment variables.
+- **Secrets.** Symfony reads `.env` first and then `.env.<env>`, so dev and test take
+  their `APP_SECRET` from `.env.dev` and `.env.test`. The value in `.env` is the
+  fallback every *other* environment gets — production included — and it shipped empty.
+  It now holds a non-secret default; supply a real one through `.env.local` or an
+  environment variable. The MySQL credentials (`app:app`, and the container's `root`)
+  likewise belong to the local stack only.
 
 ## Configuration
 
