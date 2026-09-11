@@ -47,8 +47,16 @@ class Category implements TimestampableInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 10, unique: true)]
-    #[Assert\NotBlank(message: 'A category code is required.')]
+    // normalizer: trim, or a code of nothing but spaces counts as filled in.
+    #[Assert\NotBlank(message: 'A category code is required.', normalizer: 'trim')]
     #[Assert\Length(max: 10, maxMessage: 'A category code cannot exceed {{ limit }} characters.')]
+    // Without a character restriction, " BIKES " and a code containing a newline are
+    // both accepted and stored verbatim, which makes a supposedly stable identifier
+    // depend on invisible whitespace.
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z0-9_-]+$/',
+        message: 'A category code may contain only letters, digits, hyphens and underscores.',
+    )]
     #[Groups(['category:read', 'category:write', 'product:read'])]
     #[ApiProperty(
         description: 'Unique identifier for the category, at most 10 characters.',

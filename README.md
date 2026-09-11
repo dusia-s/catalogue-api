@@ -136,12 +136,20 @@ curl -X PATCH http://localhost:8080/api/products/1 \
 
 | Rule | Response |
 |---|---|
-| Category `code` must be unique | `422` |
+| Category `code` must be unique (the collation is case-insensitive, so `BIKES` and `bikes` collide) | `422` |
 | Category `code` at most 10 characters | `422` |
+| Category `code` may contain only letters, digits, `-` and `_` | `422` |
+| Product `name` required, and not only whitespace | `422` |
+| Product `price` up to 8 digits and 2 decimals, non-negative | `422` |
 | Product must have at least one category | `422` |
-| Product price must not be negative | `422` |
+| Category IRI that does not resolve | `400` |
 
 Errors come back as RFC 7807 problem documents.
+
+The price pattern mirrors the `DECIMAL(10,2)` column exactly. Leaving the format to the
+database means `"abc"` and an over-long value pass validation and fail on `INSERT`,
+turning a client mistake into a 500, while a third decimal place is quietly rounded
+away. Pinning it in the constraint keeps all three answers a 422.
 
 ## Design notes
 

@@ -140,12 +140,21 @@ curl -X PATCH http://localhost:8080/api/products/1 \
 
 | Reguła | Odpowiedź |
 |---|---|
-| Kod kategorii musi być unikalny | `422` |
+| Kod kategorii musi być unikalny (porównanie bez uwzględniania wielkości liter, więc `BIKES` i `bikes` kolidują) | `422` |
 | Kod kategorii maksymalnie 10 znaków | `422` |
+| Kod kategorii może zawierać tylko litery, cyfry, `-` i `_` | `422` |
+| Nazwa produktu wymagana i nie może być samymi spacjami | `422` |
+| Cena produktu: do 8 cyfr i 2 miejsc po przecinku, nieujemna | `422` |
 | Produkt musi mieć co najmniej jedną kategorię | `422` |
-| Cena produktu nie może być ujemna | `422` |
+| IRI kategorii, które nie istnieje | `400` |
 
 Błędy zwracane są jako dokumenty problem+json (RFC 7807).
+
+Wzorzec ceny odzwierciedla dokładnie kolumnę `DECIMAL(10,2)`. Pozostawienie formatu
+bazie danych oznacza, że `"abc"` i zbyt duża wartość przechodzą walidację i wywracają
+się dopiero na `INSERT`, zamieniając błąd klienta w 500, a trzecie miejsce po przecinku
+jest po cichu zaokrąglane. Zapięcie tego w walidacji sprawia, że wszystkie trzy
+przypadki kończą się kodem 422.
 
 ## Decyzje projektowe
 

@@ -64,7 +64,8 @@ class Product implements TimestampableInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'A product name is required.')]
+    // normalizer: trim, or a name of nothing but spaces counts as filled in.
+    #[Assert\NotBlank(message: 'A product name is required.', normalizer: 'trim')]
     #[Assert\Length(max: 255)]
     #[Groups(['product:read', 'product:write'])]
     #[ApiProperty(example: 'Carbon Wheelset 45 mm')]
@@ -77,7 +78,20 @@ class Product implements TimestampableInterface
      */
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     #[Assert\NotNull(message: 'A product price is required.')]
-    #[Assert\PositiveOrZero(message: 'A product price cannot be negative.')]
+    // Regex ignores an empty string, the way nearly every constraint but NotBlank and
+    // NotNull does, so "" would otherwise sail through to the column. NotBlank special
+    // cases "0", which stays a legitimate price.
+    #[Assert\NotBlank(message: 'A product price is required.', normalizer: 'trim')]
+    // The column is DECIMAL(10,2), so the format has to be pinned here rather than
+    // left to the database. PositiveOrZero alone is not enough: it compares a string
+    // against zero, so "abc" passes validation and then fails the INSERT with a 500,
+    // an over-long value overflows the column the same way, and a third decimal place
+    // is silently rounded away. Eight integer digits and two decimals is exactly what
+    // DECIMAL(10,2) holds, and leading "-" is absent from the pattern by design.
+    #[Assert\Regex(
+        pattern: '/^\d{1,8}(\.\d{1,2})?$/',
+        message: 'Price must be a non-negative amount with up to 8 digits and 2 decimal places, for example "89.50".',
+    )]
     #[Groups(['product:read', 'product:write'])]
     #[ApiProperty(
         description: 'Decimal amount as a string, so no precision is lost in transit.',
