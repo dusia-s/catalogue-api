@@ -25,7 +25,7 @@ all run inside the stack, so there is nothing to install on the host.
 ## Getting started
 
 ```bash
-git clone <repository-url> catalogue-api
+git clone https://github.com/dusia-s/catalogue-api.git
 cd catalogue-api
 
 # 1. Build and start php-fpm, nginx, MySQL and Mailpit

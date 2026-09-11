@@ -25,7 +25,7 @@ działają wewnątrz kontenerów, więc na hoście nie trzeba niczego instalowa�
 ## Uruchomienie
 
 ```bash
-git clone <adres-repozytorium> catalogue-api
+git clone https://github.com/dusia-s/catalogue-api.git
 cd catalogue-api
 
 # 1. Zbuduj i uruchom php-fpm, nginx, MySQL i Mailpit
