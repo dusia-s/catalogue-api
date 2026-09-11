@@ -7,6 +7,7 @@ namespace App\Tests\Doctrine;
 use App\Doctrine\TimestampableCollectionListener;
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Tests\Support\CategoryCode;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -101,8 +102,7 @@ final class TimestampableCollectionListenerTest extends KernelTestCase
 
     private function persistCategory(): Category
     {
-        // Codes are capped at 10 characters, so keep the unique suffix short.
-        $category = (new Category())->setCode(substr(uniqid('C'), -10));
+        $category = (new Category())->setCode(CategoryCode::next());
 
         $this->entityManager->persist($category);
         $this->entityManager->flush();

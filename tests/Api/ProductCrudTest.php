@@ -6,6 +6,7 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Tests\Support\CategoryCode;
 
 /**
  * HTTP-level cover for the product lifecycle and the validation rules in the brief.
@@ -158,7 +159,7 @@ final class ProductCrudTest extends ApiTestCase
     public function testADuplicateCategoryCodeIsRejected(): void
     {
         $client = static::createClient();
-        $code = substr(uniqid('C'), -10);
+        $code = CategoryCode::next();
 
         foreach ([201, 422] as $expected) {
             $client->request('POST', '/api/categories', [
@@ -189,8 +190,7 @@ final class ProductCrudTest extends ApiTestCase
     {
         $response = $client->request('POST', '/api/categories', [
             'headers' => self::LD_JSON,
-            // Codes are capped at 10 characters.
-            'json' => ['code' => substr(uniqid('C'), -10)],
+            'json' => ['code' => CategoryCode::next()],
         ]);
 
         self::assertResponseStatusCodeSame(201);

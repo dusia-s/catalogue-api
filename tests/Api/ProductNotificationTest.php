@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\OperationLog;
 use App\Repository\OperationLogRepository;
+use App\Tests\Support\CategoryCode;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 
 /**
@@ -94,8 +95,7 @@ final class ProductNotificationTest extends ApiTestCase
     {
         $response = $client->request('POST', '/api/categories', [
             'headers' => self::LD_JSON,
-            // Codes are capped at 10 characters.
-            'json' => ['code' => substr(uniqid('C'), -10)],
+            'json' => ['code' => CategoryCode::next()],
         ]);
 
         self::assertResponseStatusCodeSame(201);

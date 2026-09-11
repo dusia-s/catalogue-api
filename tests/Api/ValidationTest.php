@@ -6,6 +6,7 @@ namespace App\Tests\Api;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
+use App\Tests\Support\CategoryCode;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -40,6 +41,11 @@ final class ValidationTest extends ApiTestCase
         yield 'thousands separator' => ['1,000.00'];
         yield 'leading plus' => ['+5.00'];
         yield 'whitespace padded' => [' 5.00 '];
+
+        // Same unanchored-`$` flaw as the category code. MySQL trimmed this while
+        // casting to DECIMAL so nothing malformed was stored, but the constraint
+        // should reject it rather than lean on the column to tidy up.
+        yield 'trailing newline' => ["12.34\n"];
     }
 
     #[DataProvider('invalidPrices')]
@@ -107,6 +113,13 @@ final class ValidationTest extends ApiTestCase
         yield 'contains a space' => ['TWO WORDS'];
         yield 'empty' => [''];
         yield 'eleven characters' => ['ELEVENCHARS'];
+
+        // PCRE lets `$` match just before a final newline, so without the D modifier
+        // these satisfied the pattern and were stored with the newline intact. With no
+        // delete operation on categories, such a row could never be removed again.
+        yield 'trailing newline' => ["BIKES\n"];
+        yield 'trailing carriage return' => ["BIKES\r"];
+        yield 'nothing but a newline' => ["\n"];
     }
 
     #[DataProvider('invalidCategoryCodes')]
@@ -165,7 +178,7 @@ final class ValidationTest extends ApiTestCase
     {
         $response = $client->request('POST', '/api/categories', [
             'headers' => self::LD_JSON,
-            'json' => ['code' => substr(uniqid('C'), -10)],
+            'json' => ['code' => CategoryCode::next()],
         ]);
 
         self::assertResponseStatusCodeSame(201);

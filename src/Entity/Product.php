@@ -88,8 +88,12 @@ class Product implements TimestampableInterface
     // an over-long value overflows the column the same way, and a third decimal place
     // is silently rounded away. Eight integer digits and two decimals is exactly what
     // DECIMAL(10,2) holds, and leading "-" is absent from the pattern by design.
+    // The D modifier stops `$` from matching before a trailing newline, so "12.34\n"
+    // is rejected rather than accepted. MySQL happens to trim it while casting to
+    // DECIMAL, so nothing malformed was reaching the column, but the constraint should
+    // not be relying on the database to clean up after it.
     #[Assert\Regex(
-        pattern: '/^\d{1,8}(\.\d{1,2})?$/',
+        pattern: '/^\d{1,8}(\.\d{1,2})?$/D',
         message: 'Price must be a non-negative amount with up to 8 digits and 2 decimal places, for example "89.50".',
     )]
     #[Groups(['product:read', 'product:write'])]

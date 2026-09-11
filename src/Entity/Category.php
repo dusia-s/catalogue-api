@@ -53,8 +53,12 @@ class Category implements TimestampableInterface
     // Without a character restriction, " BIKES " and a code containing a newline are
     // both accepted and stored verbatim, which makes a supposedly stable identifier
     // depend on invisible whitespace.
+    // The D modifier matters: without it PCRE lets `$` match just before a trailing
+    // newline, so "BIKES\n" satisfies the pattern and is stored with the newline
+    // intact. Categories have no delete operation, which would make such a row
+    // permanent.
     #[Assert\Regex(
-        pattern: '/^[A-Za-z0-9_-]+$/',
+        pattern: '/^[A-Za-z0-9_-]+$/D',
         message: 'A category code may contain only letters, digits, hyphens and underscores.',
     )]
     #[Groups(['category:read', 'category:write', 'product:read'])]
